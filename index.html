@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+   integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+   crossorigin=""/>
+   <!-- Make sure you put this AFTER Leaflet's CSS -->
+ 	
+ 	<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+   integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+   crossorigin=""></script>
+    <style>
+      
+      #mapid {
+        height: 500px;
+      }
+
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mapid"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script>
+    	// see: https://leafletjs.com/examples/quick-start/
+      var map;
+
+      // see: mapbox.com
+      var mapboxToken = 'APP_KEY';
+
+      function buildGeocodingUrl(search)
+      {
+      	// see: locationiq.com
+      	var key = 'APP_KEY';
+      	return 'https://eu1.locationiq.com/v1/search.php?key=' + key + '&postalcode=' + search + '&format=json';
+      }
+
+
+      function initMap() {
+
+      	// Lookup the lat / long of a particular address
+      	var url = buildGeocodingUrl('XXX XXX');
+      	
+      	$.get(url, function (response) {
+
+      		// here when the lookup completes. Note - there could be multiple results in the set - you 
+      		// may wish to constrain the results 
+
+      		var lat = Number(response[0].lat);
+      		var lon = Number(response[0].lon);
+
+      		// we have determined the address info...
+      		var mymap = L.map('mapid').setView([lat, lon], 17);
+      		L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=' + mapboxToken, {
+			    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+			    maxZoom: 18,
+			    id: 'mapbox.streets',
+			    accessToken: mapboxToken
+			}).addTo(mymap);
+
+
+			var pointsOfInterest = [
+				{
+					lat: 51.6954237,
+					lon: -3.0143204,
+					title: 'Awesome Uni'
+				},
+				{
+					lat: 51.6950102,
+					lon: -3.0124963,
+					title: 'Scruffys centre of excellence'
+				}
+			];
+
+			function addPointOfInterest(point, map)
+			{
+				var marker = L.marker([point.lat, point.lon]);
+
+				marker.bindPopup('<strong>info:</strong>' + point.title);
+				marker.addTo(map);
+				marker.openPopup();
+
+			}
+
+			for (pointIndex in pointsOfInterest)
+				addPointOfInterest( pointsOfInterest[pointIndex], mymap);
+
+			// now we'll add the points of interest to the map...
+
+      	});
+      }
+
+      initMap();
+    </script>
+    
+  </body>
+</html>
